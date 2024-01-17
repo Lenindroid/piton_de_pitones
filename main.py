@@ -8,8 +8,8 @@ clock = pygame.time.Clock()
 running = True
 
 # loading assets 
-logo = pygame.image.load('assets\logo_alpha_1_0_0.png').convert()
-play_button = pygame.image.load('assets\play_button.png').convert()  # Reemplaza 'play_button.png' con el nombre de tu archivo de botón
+logo = pygame.image.load('assets\logo_alpha_1_0_0.png')
+play_button = pygame.image.load('assets\play_button.png') 
 
 # buttons positioning
 button_rect = play_button.get_rect()
