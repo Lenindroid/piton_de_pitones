@@ -27,7 +27,7 @@ while running:
             pass
 
     # RENDER YOUR GAME HERE
-    screen.fill((255, 255, 255)) 
+    screen.fill(('white')) 
     screen.blit(logo, (100, 100))  
     screen.blit(play_button, button_rect) 
     # flip() the display to put your work on screen
