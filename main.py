@@ -1,4 +1,5 @@
 import pygame
+from pygame.sprite import _Group
 
 # pygame setup
 pygame.init()
@@ -9,13 +10,18 @@ running = True
 
 # loading assets 
 logo = pygame.image.load('assets\logo_alpha_1_0_0.png').convert_alpha()
-play_button = pygame.image.load('assets\play_button.png') .convert_alpha()
+play_button = pygame.image.load('assets\play_button.png').convert_alpha()
 
 # buttons positioning
 button_rect = play_button.get_rect()
 button_rect.center = (400, 400)
 
-# menu functions
+# snake
+class Snake(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.image = pygame.image.load('assets\snake\head.png').convert_alpha()
+        self.rect = self.image.get_rect(topleft=(400, 300))
 
 
 while running:
