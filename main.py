@@ -8,8 +8,8 @@ clock = pygame.time.Clock()
 running = True
 
 # loading assets 
-logo = pygame.image.load('assets\logo_alpha_1_0_0.png').convert()
-play_button = pygame.image.load('assets\play_button.png') .convert()
+logo = pygame.image.load('assets\logo_alpha_1_0_0.png').convert_alpha()
+play_button = pygame.image.load('assets\play_button.png') .convert_alpha()
 
 # buttons positioning
 button_rect = play_button.get_rect()
