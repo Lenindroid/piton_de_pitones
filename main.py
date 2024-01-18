@@ -29,7 +29,7 @@ class Font(pygame.sprite.Sprite):
     def __init__(self, font, size):
         super().__init__()
         self.font_config = pygame.font.Font(font, size)
-        self.rect = self.image.get_rect(center=(400, 300))
+
         
     def render (self, text, AA, color):
         text_sufrace = self.font_config.render(text, AA, color)
@@ -59,7 +59,7 @@ while running:
         # flip() the display to put your work on screen
     else:
         screen.blit(grass.image, grass.rect)
-        screen.blit(enigma_code, (400, 300))
+        screen.blit(enigma_code, (200, 300))
             
     pygame.display.flip()
     clock.tick(60)  # limits FPS to 60
