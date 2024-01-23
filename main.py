@@ -13,7 +13,19 @@ class Snake(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
         self.image = pygame.image.load('assets\snake\head.png').convert_alpha()
-        self.rect = self.image.get_rect(center=(400, 300))
+        self.rect = self.image.get_rect(center=(200, 300))
+    
+    def move_left(self):
+        self.rect.x -= 10
+    
+    def move_right(self):
+        self.rect.x += 10
+    
+    def move_up(self):
+        self.rect.y += 10
+    
+    def move_down(self):
+        self.rect.y -= 10
 
 class Static_Image (pygame.sprite.Sprite):
     def __init__(self, route, alpha, **rectangle):
@@ -39,8 +51,7 @@ class Font(pygame.sprite.Sprite):
 grass = Static_Image('assets\grass.png', False, topleft = (0, 0))
 logo = Static_Image('assets\logo.png', True, center = (400, 150))
 button_play = Static_Image('assets\play_button.png', True, topleft = (200, 186))
-
-enigma_code = Font('assets\\typography\Snake Chan.ttf', 50).render('Hello world', True, '#C1FD20')
+snake = Snake()
 
 # game loop
 while running:
@@ -51,7 +62,9 @@ while running:
             mouse_position = pygame.mouse.get_pos()
             if button_play.rect.collidepoint(mouse_position):
                 game_active = True
-
+                
+    keys_state = pygame.key.get_pressed()
+    
     if game_active == False:
         screen.blit(grass.image, grass.rect) 
         screen.blit(logo.image, logo.rect)
@@ -59,7 +72,17 @@ while running:
         # flip() the display to put your work on screen
     else:
         screen.blit(grass.image, grass.rect)
-        screen.blit(enigma_code, (200, 300))
+        screen.blit(snake.image, snake.rect)
+        
+        if keys_state[pygame.K_UP] or keys_state[pygame.K_w]:
+            snake.move_up()
+        if keys_state[pygame.K_DOWN] or keys_state[pygame.K_s]:
+            snake.move_down()
+        if keys_state[pygame.K_LEFT] or keys_state[pygame.K_a]:
+            snake.move_left()
+        if keys_state[pygame.K_RIGHT] or keys_state[pygame.K_d]:
+            snake.move_right()
+            
             
     pygame.display.flip()
     clock.tick(60)  # limits FPS to 60
