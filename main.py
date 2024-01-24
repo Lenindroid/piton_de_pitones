@@ -6,7 +6,7 @@ screen = pygame.display.set_mode((800, 600))
 pygame.display.set_caption('Pitón de pitones (Alpha 1.0.2)')
 clock = pygame.time.Clock()
 running = True
-game_active = False
+game_state = 'MENU'
 
 # defining classes
 class Snake(pygame.sprite.Sprite):
@@ -52,28 +52,31 @@ grass = Static_Image('assets\grass.png', False, topleft = (0, 0))
 logo = Static_Image('assets\logo.png', True, center = (400, 150))
 button_play = Static_Image('assets\play_button.png', True, topleft = (200, 186))
 snake = Snake()
+death_message = Font('assets\\typography\Snake Chan.ttf', 50).render('Haz murido', True, '#C1FD20')
 
 # game loop
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False #It could be sys.exit() but this is a simpler method
-        elif event.type == pygame.MOUSEBUTTONDOWN:
-            mouse_position = pygame.mouse.get_pos()
-            if button_play.rect.collidepoint(mouse_position):
-                game_active = True
                 
     keys_state = pygame.key.get_pressed()
     
-    if game_active == False:
+    if game_state == 'MENU':
         screen.blit(grass.image, grass.rect) 
         screen.blit(logo.image, logo.rect)
         screen.blit(button_play.image, button_play.rect)
+        if (pygame.mouse.get_pressed()[0]):
+            mouse_position = pygame.mouse.get_pos()
+            if button_play.rect.collidepoint(mouse_position):
+                game_state = 'PLAYING'
         # flip() the display to put your work on screen
-    else:
+    elif game_state == 'PLAYING':
         screen.blit(grass.image, grass.rect)
         screen.blit(snake.image, snake.rect)
         
+        if snake.rect.x <= 0 or snake.rect.y <= 0:
+            game_state = 'LOST'
         if keys_state[pygame.K_UP] or keys_state[pygame.K_w]:
             snake.move_up()
         if keys_state[pygame.K_DOWN] or keys_state[pygame.K_s]:
@@ -82,6 +85,9 @@ while running:
             snake.move_left()
         if keys_state[pygame.K_RIGHT] or keys_state[pygame.K_d]:
             snake.move_right()
+            
+    elif game_state == 'LOST':        
+        screen.blit(death_message, (200, 300))
             
             
     pygame.display.flip()
