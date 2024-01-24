@@ -22,10 +22,10 @@ class Snake(pygame.sprite.Sprite):
         self.rect.x += 10
     
     def move_up(self):
-        self.rect.y += 10
+        self.rect.y -= 10
     
     def move_down(self):
-        self.rect.y -= 10
+        self.rect.y += 10
 
 class Static_Image (pygame.sprite.Sprite):
     def __init__(self, route, alpha, **rectangle):
