@@ -3,7 +3,7 @@ import pygame
 # pygame setup
 pygame.init()
 screen = pygame.display.set_mode((800, 600))
-pygame.display.set_caption('Pitón de pitones (Alpha 1.0.3)')
+pygame.display.set_caption('Pitón de pitones (Alpha 1.0.4)')
 clock = pygame.time.Clock()
 running = True
 game_state = 'MENU'
