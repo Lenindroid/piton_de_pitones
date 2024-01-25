@@ -3,7 +3,7 @@ import pygame
 # pygame setup
 pygame.init()
 screen = pygame.display.set_mode((800, 600))
-pygame.display.set_caption('Pitón de pitones (Alpha 1.0.2)')
+pygame.display.set_caption('Pitón de pitones (Alpha 1.0.3)')
 clock = pygame.time.Clock()
 running = True
 game_state = 'MENU'
@@ -13,7 +13,7 @@ class Snake(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
         self.image = pygame.image.load('assets\snake\head.png').convert_alpha()
-        self.rect = self.image.get_rect(center=(200, 300))
+        self.rect = self.image.get_rect(topleft=(0, 300))
     
     def move_left(self):
         self.rect.x -= 10
@@ -46,15 +46,25 @@ class Font(pygame.sprite.Sprite):
     def render (self, text, AA, color):
         text_sufrace = self.font_config.render(text, AA, color)
         return text_sufrace
+    
+class Music(pygame.sprite.Sprite):
+    def __init__(self, file):
+        super().__init__()
+        self.file = pygame.mixer.Sound(file)
 
-# loading images
+# loading assets
 grass = Static_Image('assets\grass.png', False, topleft = (0, 0))
 logo = Static_Image('assets\logo.png', True, center = (400, 150))
 button_play = Static_Image('assets\play_button.png', True, topleft = (200, 186))
 snake = Snake()
 death_message = Font('assets\\typography\Snake Chan.ttf', 50).render('Haz murido', True, '#C1FD20')
+lost_song = Music('assets\music\lost_song.mp3')
+menu_song = Music('assets\music\menu_song.mp3')
+playing_song = Music('assets/music/playing_song_loop.mp3')
+playing_song.file.set_volume(0.75)
 
 # game loop
+menu_song.file.play()
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -70,12 +80,16 @@ while running:
             mouse_position = pygame.mouse.get_pos()
             if button_play.rect.collidepoint(mouse_position):
                 game_state = 'PLAYING'
+                menu_song.file.stop()
+                playing_song.file.play(loops=-1)
         # flip() the display to put your work on screen
     elif game_state == 'PLAYING':
         screen.blit(grass.image, grass.rect)
         screen.blit(snake.image, snake.rect)
         
-        if snake.rect.x <= 0 or snake.rect.y <= 0:
+        if snake.rect.x < 0 or snake.rect.y < 0 or snake.rect.x > 800 or snake.rect.y > 600:
+            playing_song.file.stop()
+            lost_song.file.play()
             game_state = 'LOST'
         if keys_state[pygame.K_UP] or keys_state[pygame.K_w]:
             snake.move_up()
