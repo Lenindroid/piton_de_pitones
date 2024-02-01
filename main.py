@@ -1,9 +1,13 @@
 import pygame
+import random
 
 # pygame setup
 pygame.init()
-screen = pygame.display.set_mode((800, 600))
-pygame.display.set_caption('Pitón de pitones (Alpha 1.0.4)')
+cell_size = 40
+cell_number_x = 20
+cell_number_y = 15
+screen = pygame.display.set_mode((cell_size * cell_number_x, cell_size * cell_number_y))
+pygame.display.set_caption('Pitón de pitones (Alpha 1.0.5)')
 clock = pygame.time.Clock()
 running = True
 game_state = 'MENU'
@@ -26,6 +30,18 @@ class Snake(pygame.sprite.Sprite):
     
     def move_down(self):
         self.rect.y += 10
+
+class Python:
+    def __init__(self):
+        self.position = pygame.math.Vector2(cell_size * 10, cell_size * 5)
+        self.rect = pygame.rect.Rect(self.position.x, self.position.y, cell_size, cell_size)
+    
+    def spawn(self):
+        pythons_assets = ['assets\snake\cat_python.png', 'assets\snake\legacy_lenin.png']
+        random.shuffle(pythons_assets)
+        image = pygame.image.load(pythons_assets[0]).convert_alpha()
+        screen.blit(image, self.position)
+        
 
 class Static_Image (pygame.sprite.Sprite):
     def __init__(self, route, alpha, **rectangle):
@@ -57,6 +73,7 @@ grass = Static_Image('assets\grass.png', False, topleft = (0, 0))
 logo = Static_Image('assets\logo.png', True, center = (400, 150))
 button_play = Static_Image('assets\play_button.png', True, topleft = (200, 186))
 snake = Snake()
+python = Python()
 death_message = Font('assets\\typography\Snake Chan.ttf', 50).render('Haz murido', True, '#C1FD20')
 lost_song = Music('assets\music\lost_song.mp3')
 menu_song = Music('assets\music\menu_song.mp3')
@@ -82,10 +99,10 @@ while running:
                 game_state = 'PLAYING'
                 menu_song.file.stop()
                 playing_song.file.play(loops=-1)
-        # flip() the display to put your work on screen
     elif game_state == 'PLAYING':
         screen.blit(grass.image, grass.rect)
         screen.blit(snake.image, snake.rect)
+        python.spawn()
         
         if snake.rect.x < 0 or snake.rect.y < 0 or snake.rect.x > 800 or snake.rect.y > 600:
             playing_song.file.stop()
@@ -105,6 +122,6 @@ while running:
             
             
     pygame.display.flip()
-    clock.tick(60)  # limits FPS to 60
+    clock.tick(60)  
 
 pygame.quit()
