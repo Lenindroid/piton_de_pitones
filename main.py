@@ -7,7 +7,7 @@ cell_size = 40
 cell_number_x = 20
 cell_number_y = 15
 screen = pygame.display.set_mode((cell_size * cell_number_x, cell_size * cell_number_y))
-pygame.display.set_caption('Pitón de pitones (Alpha 1.0.5)')
+pygame.display.set_caption('Pitón de pitones (Alpha 1.0.7)')
 clock = pygame.time.Clock()
 running = True
 game_state = 'MENU'
@@ -33,15 +33,23 @@ class Snake(pygame.sprite.Sprite):
 
 class Python:
     def __init__(self):
-        self.position = pygame.math.Vector2(cell_size * 10, cell_size * 5)
+        self.x = random.randint(0, cell_number_x - 1)
+        self.y = random.randint(0, cell_number_y - 1)
+        self.position = pygame.math.Vector2(cell_size * self.x, self.y * 5)
         self.rect = pygame.rect.Rect(self.position.x, self.position.y, cell_size, cell_size)
-    
-    def spawn(self):
-        pythons_assets = ['assets\snake\cat_python.png', 'assets\snake\legacy_lenin.png']
-        random.shuffle(pythons_assets)
-        image = pygame.image.load(pythons_assets[0]).convert_alpha()
-        screen.blit(image, self.position)
+        self.should_spawn = True
+        self.pythons_assets = ['assets\snake\cat_python.png', 'assets\snake\legacy_lenin.png', 'assets\snake\gabriela_python.png']
         
+    def spawn(self):
+        image = pygame.image.load(self.pythons_assets[0]).convert()
+        screen.blit(image, self.position)
+    
+    def switch_spawn(self):
+        random.shuffle(self.pythons_assets)
+        self.x = random.randint(0, cell_number_x - 1)
+        self.y = random.randint(0, cell_number_y - 1)
+        self.position = pygame.math.Vector2(cell_size * self.x, self.y * 5)
+        self.rect = pygame.rect.Rect(self.position.x, self.position.y, cell_size, cell_size)
 
 class Static_Image (pygame.sprite.Sprite):
     def __init__(self, route, alpha, **rectangle):
@@ -103,7 +111,8 @@ while running:
         screen.blit(grass.image, grass.rect)
         screen.blit(snake.image, snake.rect)
         python.spawn()
-        
+        if snake.rect.colliderect(python.rect):
+            python.switch_spawn()
         if snake.rect.x < 0 or snake.rect.y < 0 or snake.rect.x > 800 or snake.rect.y > 600:
             playing_song.file.stop()
             lost_song.file.play()
