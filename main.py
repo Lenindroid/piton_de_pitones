@@ -16,8 +16,17 @@ game_state = 'MENU'
 class Snake(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        self.image = pygame.image.load('assets\snake\head.png').convert_alpha()
-        self.rect = self.image.get_rect(topleft=(0, 300))
+        head_down = pygame.image.load('assets\snake\head.png').convert_alpha()
+        self.head_images = {
+        'down': head_down,
+        'left': pygame.transform.rotozoom(head_down, 270, 1),
+        'right': pygame.transform.rotozoom(head_down, 90, 1),
+        'up': pygame.transform.rotozoom(head_down, 180, 1)
+        }
+
+        self.pythons_assets = [self.head_images['down']]
+        self.rect = head_down.get_rect(topleft=(40, 300))
+        self.is_moving = 'right'
     
     def move_left(self):
         self.rect.x -= 10
@@ -108,23 +117,36 @@ while running:
                 menu_song.file.stop()
                 playing_song.file.play(loops=-1)
     elif game_state == 'PLAYING':
+        
         screen.blit(grass.image, grass.rect)
-        screen.blit(snake.image, snake.rect)
+        screen.blit(snake.head_images[snake.is_moving], snake.rect)
         python.spawn()
+        
         if snake.rect.colliderect(python.rect):
             python.switch_spawn()
+            
         if snake.rect.x < 0 or snake.rect.y < 0 or snake.rect.x > 800 or snake.rect.y > 600:
             playing_song.file.stop()
             lost_song.file.play()
             game_state = 'LOST'
-        if keys_state[pygame.K_UP] or keys_state[pygame.K_w]:
-            snake.move_up()
-        if keys_state[pygame.K_DOWN] or keys_state[pygame.K_s]:
-            snake.move_down()
-        if keys_state[pygame.K_LEFT] or keys_state[pygame.K_a]:
+            
+        if snake.is_moving == 'left':
             snake.move_left()
+        if snake.is_moving == 'down':
+            snake.move_down()
+        if snake.is_moving == 'right':
+            snake.move_right()    
+        if snake.is_moving == 'up':
+            snake.move_up()
+        
+        if keys_state[pygame.K_UP] or keys_state[pygame.K_w]:
+            snake.is_moving = 'up'
+        if keys_state[pygame.K_DOWN] or keys_state[pygame.K_s]:
+            snake.is_moving = 'down'
+        if keys_state[pygame.K_LEFT] or keys_state[pygame.K_a]:
+            snake.is_moving = 'left'
         if keys_state[pygame.K_RIGHT] or keys_state[pygame.K_d]:
-            snake.move_right()
+            snake.is_moving = 'right'
             
     elif game_state == 'LOST':        
         screen.blit(death_message, (200, 300))
