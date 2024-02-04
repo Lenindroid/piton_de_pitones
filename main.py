@@ -7,7 +7,7 @@ cell_size = 40
 cell_number_x = 20
 cell_number_y = 15
 screen = pygame.display.set_mode((cell_size * cell_number_x, cell_size * cell_number_y))
-pygame.display.set_caption('Pitón de pitones (Alpha 1.0.7)')
+pygame.display.set_caption('Pitón de pitones (Alpha 1.0.8)')
 clock = pygame.time.Clock()
 running = True
 game_state = 'MENU'
