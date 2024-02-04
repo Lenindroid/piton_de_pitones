@@ -16,8 +16,16 @@ game_state = 'MENU'
 class Snake(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        self.image = pygame.image.load('assets\snake\head.png').convert_alpha()
-        self.rect = self.image.get_rect(topleft=(0, 300))
+        head_down = pygame.image.load('assets\snake\head.png').convert_alpha()
+        self.head_images = {
+        'down': head_down,
+        'left': pygame.transform.rotozoom(head_down, 90),
+        'right': pygame.transform.rotozoom(head_down, 270),
+        'up': pygame.transform.rotozoom(head_down, 180)
+        }
+
+        self.pythons_assets = [self.head_images['down']]
+        self.rect = head_down.get_rect(topleft=(0, 300))
     
     def move_left(self):
         self.rect.x -= 10
