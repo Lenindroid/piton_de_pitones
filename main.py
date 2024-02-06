@@ -25,20 +25,26 @@ class Snake(pygame.sprite.Sprite):
         }
 
         self.pythons_assets = [self.head_images['down']]
-        self.rect = head_down.get_rect(topleft=(40, 300))
+        self.pythons_positions = [pygame.math.Vector2(1, 20)]
         self.is_moving = 'right'
     
-    def move_left(self):
-        self.rect.x -= 10
+    def spawn(self):
+        for asset in zip(self.pythons_assets, self.pythons_positions):
+            x_position = int(asset[1].x * cell_size)
+            y_position = int(asset[1].y * cell_size)
+            screen.blit(asset, asset[0].get_rect(x_position, y_position))
     
-    def move_right(self):
-        self.rect.x += 10
+    #def move_left(self):
+    #    self.rect.x -= 10
     
-    def move_up(self):
-        self.rect.y -= 10
+    #def move_right(self):
+    #    self.rect.x += 10
     
-    def move_down(self):
-        self.rect.y += 10
+    #def move_up(self):
+    #    self.rect.y -= 10
+    
+    #def move_down(self):
+    #    self.rect.y += 10
 
 class Python:
     def __init__(self):
@@ -116,28 +122,28 @@ while running:
                 game_state = 'PLAYING'
                 menu_song.file.stop()
                 playing_song.file.play(loops=-1)
-    elif game_state == 'PLAYING':
+    #elif game_state == 'PLAYING':
         
-        screen.blit(grass.image, grass.rect)
-        screen.blit(snake.head_images[snake.is_moving], snake.rect)
-        python.spawn()
+        #screen.blit(grass.image, grass.rect)
+        #screen.blit(snake.head_images[snake.is_moving], snake.rect)
+        #python.spawn()
         
-        if snake.rect.colliderect(python.rect):
-            python.switch_spawn()
+        #if snake.rect.colliderect(python.rect):
+            #python.switch_spawn()
             
-        if snake.rect.x < 0 or snake.rect.y < 0 or snake.rect.x > 800 or snake.rect.y > 600:
-            playing_song.file.stop()
-            lost_song.file.play()
-            game_state = 'LOST'
+        #if snake.rect.x < 0 or snake.rect.y < 0 or snake.rect.x > 800 or snake.rect.y > 600:
+            #playing_song.file.stop()
+            #lost_song.file.play()
+            #game_state = 'LOST'
             
-        if snake.is_moving == 'left':
-            snake.move_left()
-        if snake.is_moving == 'down':
-            snake.move_down()
-        if snake.is_moving == 'right':
-            snake.move_right()    
-        if snake.is_moving == 'up':
-            snake.move_up()
+        #if snake.is_moving == 'left':
+            #snake.move_left()
+        #if snake.is_moving == 'down':
+            #snake.move_down()
+        #if snake.is_moving == 'right':
+            #snake.move_right()    
+        #if snake.is_moving == 'up':
+            #snake.move_up()
         
         if keys_state[pygame.K_UP] or keys_state[pygame.K_w]:
             snake.is_moving = 'up'
