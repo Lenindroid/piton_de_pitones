@@ -24,27 +24,29 @@ class Snake(pygame.sprite.Sprite):
         'up': pygame.transform.rotozoom(head_down, 180, 1)
         }
 
-        self.pythons_assets = [self.head_images['down']]
-        self.pythons_positions = [pygame.math.Vector2(1, 20)]
+        self.pythons = [{'asset': self.head_images['down'], 'position': pygame.math.Vector2(1, 7)}]
         self.is_moving = 'right'
+        self.head_rect = self.pythons[0]['asset'].get_rect(topleft=(int(self.pythons[0]['position'].x * cell_size), int(self.pythons[0]['position'].y * cell_size)))
     
     def spawn(self):
-        for asset in zip(self.pythons_assets, self.pythons_positions):
-            x_position = int(asset[1].x * cell_size)
-            y_position = int(asset[1].y * cell_size)
-            screen.blit(asset, asset[0].get_rect(x_position, y_position))
+        for python in self.pythons:
+            x_position = int(python['position'].x * cell_size)
+            y_position = int(python['position'].y * cell_size)
+            python['rect'] = python['asset'].get_rect(topleft=(x_position, y_position))
+            screen.blit(python['asset'], python['rect'])
+        self.head_rect = self.pythons[0]['asset'].get_rect(topleft=(int(self.pythons[0]['position'].x * cell_size), int(self.pythons[0]['position'].y * cell_size)))
     
-    #def move_left(self):
-    #    self.rect.x -= 10
+    def move_left(self):
+        self.pythons = [element['position'].x - 1 for element in self.pythons]
     
-    #def move_right(self):
-    #    self.rect.x += 10
+    def move_right(self):
+        self.pythons = [element['position'].x + 1 for element in self.pythons]
     
-    #def move_up(self):
-    #    self.rect.y -= 10
+    def move_up(self):
+        self.pythons = [element['position'].y - 1 for element in self.pythons]
     
-    #def move_down(self):
-    #    self.rect.y += 10
+    def move_down(self):
+        self.pythons = [element['position'].y + 1 for element in self.pythons]
 
 class Python:
     def __init__(self):
@@ -122,28 +124,28 @@ while running:
                 game_state = 'PLAYING'
                 menu_song.file.stop()
                 playing_song.file.play(loops=-1)
-    #elif game_state == 'PLAYING':
+    elif game_state == 'PLAYING':
         
-        #screen.blit(grass.image, grass.rect)
-        #screen.blit(snake.head_images[snake.is_moving], snake.rect)
-        #python.spawn()
+        screen.blit(grass.image, grass.rect)
+        snake.spawn()
+        python.spawn()
         
-        #if snake.rect.colliderect(python.rect):
-            #python.switch_spawn()
+        if snake.head_rect.colliderect(python.rect):
+            python.switch_spawn()
             
-        #if snake.rect.x < 0 or snake.rect.y < 0 or snake.rect.x > 800 or snake.rect.y > 600:
-            #playing_song.file.stop()
-            #lost_song.file.play()
-            #game_state = 'LOST'
+        if snake.head_rect.x < 0 or snake.head_rect.y < 0 or snake.head_rect.x > 800 or snake.head_rect.y > 600:
+            playing_song.file.stop()
+            lost_song.file.play()
+            game_state = 'LOST'
             
-        #if snake.is_moving == 'left':
-            #snake.move_left()
-        #if snake.is_moving == 'down':
-            #snake.move_down()
-        #if snake.is_moving == 'right':
-            #snake.move_right()    
-        #if snake.is_moving == 'up':
-            #snake.move_up()
+        if snake.is_moving == 'left':
+            snake.move_left()
+        if snake.is_moving == 'down':
+            snake.move_down()
+        if snake.is_moving == 'right':
+            snake.move_right()    
+        if snake.is_moving == 'up':
+            snake.move_up()
         
         if keys_state[pygame.K_UP] or keys_state[pygame.K_w]:
             snake.is_moving = 'up'
