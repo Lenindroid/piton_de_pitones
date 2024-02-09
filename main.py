@@ -11,6 +11,7 @@ pygame.display.set_caption('Pitón de pitones (Alpha 1.0.9)')
 clock = pygame.time.Clock()
 running = True
 game_state = 'MENU'
+score = 0
 
 # defining classes
 class Snake(pygame.sprite.Sprite):
@@ -97,6 +98,7 @@ lost_song = Music('assets\music\lost_song.mp3')
 menu_song = Music('assets\music\menu_song.mp3')
 playing_song = Music('assets/music/playing_song_loop.mp3')
 playing_song.file.set_volume(0.75)
+final_score = Font('assets\\typography\Snake Chan.ttf', 50)
 
 # game loop
 menu_song.file.play()
@@ -118,6 +120,7 @@ while running:
                 game_state = 'PLAYING'
                 menu_song.file.stop()
                 playing_song.file.play(loops=-1)
+                score = 0
                 
     elif game_state == 'PLAYING':
         
@@ -126,6 +129,7 @@ while running:
         python.spawn()
         
         if snake.rect.colliderect(python.rect):
+            score += 1
             python.switch_spawn()
             
         if snake.rect.x < 0 or snake.rect.y < 0 or snake.rect.x > 800 or snake.rect.y > 600:
@@ -151,12 +155,16 @@ while running:
         if keys_state[pygame.K_RIGHT] or keys_state[pygame.K_d]:
             snake.is_moving = 'right'
             
-    elif game_state == 'LOST':        
+    elif game_state == 'LOST':
+        final_score_surface = final_score.render(str(score), True, '#C1FD20')        
         screen.blit(death_message.image, death_message.rect)
+        screen.blit(final_score_surface, (421, 488))
         screen.blit(button_play_again.image, button_play_again.rect)
+        
         if (pygame.mouse.get_pressed()[0]):
             mouse_position = pygame.mouse.get_pos()
             if button_play_again.rect.collidepoint(mouse_position):
+                score = 0
                 snake.rect = snake.head_down.get_rect(topleft=(40, 300))
                 game_state = 'PLAYING'
                 lost_song.file.stop()
