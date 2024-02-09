@@ -7,7 +7,7 @@ cell_size = 40
 cell_number_x = 20
 cell_number_y = 15
 screen = pygame.display.set_mode((cell_size * cell_number_x, cell_size * cell_number_y))
-pygame.display.set_caption('Pitón de pitones (Alpha 1.0.8)')
+pygame.display.set_caption('Pitón de pitones (Alpha 1.0.9)')
 clock = pygame.time.Clock()
 running = True
 game_state = 'MENU'
@@ -16,16 +16,16 @@ game_state = 'MENU'
 class Snake(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        head_down = pygame.image.load('assets\snake\head.png').convert_alpha()
+        self.head_down = pygame.image.load('assets\snake\head.png').convert_alpha()
         self.head_images = {
-        'down': head_down,
-        'left': pygame.transform.rotozoom(head_down, 270, 1),
-        'right': pygame.transform.rotozoom(head_down, 90, 1),
-        'up': pygame.transform.rotozoom(head_down, 180, 1)
+        'down': self.head_down,
+        'left': pygame.transform.rotozoom(self.head_down, 270, 1),
+        'right': pygame.transform.rotozoom(self.head_down, 90, 1),
+        'up': pygame.transform.rotozoom(self.head_down, 180, 1)
         }
 
         self.pythons_assets = [self.head_images['down']]
-        self.rect = head_down.get_rect(topleft=(40, 300))
+        self.rect = self.head_down.get_rect(topleft=(40, 300))
         self.is_moving = 'right'
     
     def move_left(self):
@@ -89,9 +89,10 @@ class Music(pygame.sprite.Sprite):
 grass = Static_Image('assets\grass.png', False, topleft = (0, 0))
 logo = Static_Image('assets\logo.png', True, center = (400, 150))
 button_play = Static_Image('assets\play_button.png', True, topleft = (200, 186))
+button_play_again = Static_Image('assets\play_again.png', True, topleft = (52, 488))
 snake = Snake()
 python = Python()
-death_message = Font('assets\\typography\Snake Chan.ttf', 50).render('Haz murido', True, '#C1FD20')
+death_message = Static_Image('assets\DEATH_MESSAGE.png', True, topleft = (0, 0))
 lost_song = Music('assets\music\lost_song.mp3')
 menu_song = Music('assets\music\menu_song.mp3')
 playing_song = Music('assets/music/playing_song_loop.mp3')
@@ -110,12 +111,14 @@ while running:
         screen.blit(grass.image, grass.rect) 
         screen.blit(logo.image, logo.rect)
         screen.blit(button_play.image, button_play.rect)
+        
         if (pygame.mouse.get_pressed()[0]):
             mouse_position = pygame.mouse.get_pos()
             if button_play.rect.collidepoint(mouse_position):
                 game_state = 'PLAYING'
                 menu_song.file.stop()
                 playing_song.file.play(loops=-1)
+                
     elif game_state == 'PLAYING':
         
         screen.blit(grass.image, grass.rect)
@@ -149,8 +152,15 @@ while running:
             snake.is_moving = 'right'
             
     elif game_state == 'LOST':        
-        screen.blit(death_message, (200, 300))
-            
+        screen.blit(death_message.image, death_message.rect)
+        screen.blit(button_play_again.image, button_play_again.rect)
+        if (pygame.mouse.get_pressed()[0]):
+            mouse_position = pygame.mouse.get_pos()
+            if button_play_again.rect.collidepoint(mouse_position):
+                snake.rect = snake.head_down.get_rect(topleft=(40, 300))
+                game_state = 'PLAYING'
+                lost_song.file.stop()
+                playing_song.file.play(loops=-1)    
             
     pygame.display.flip()
     clock.tick(60)  
