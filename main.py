@@ -1,5 +1,6 @@
 import pygame
 import random
+from pygame.math import Vector2
 
 # pygame setup
 pygame.init()
@@ -45,7 +46,7 @@ class Python:
     def __init__(self):
         self.x = random.randint(0, cell_number_x - 1)
         self.y = random.randint(0, cell_number_y - 1)
-        self.position = pygame.math.Vector2(cell_size * self.x, self.y * 5)
+        self.position = Vector2(cell_size * self.x, self.y * 5)
         self.rect = pygame.rect.Rect(self.position.x, self.position.y, cell_size, cell_size)
         self.should_spawn = True
         self.pythons_assets = ['assets\snake\cat_python.png', 'assets\snake\legacy_lenin.png', 'assets\snake\gabriela_python.png']
@@ -58,7 +59,7 @@ class Python:
         random.shuffle(self.pythons_assets)
         self.x = random.randint(0, cell_number_x - 1)
         self.y = random.randint(0, cell_number_y - 1)
-        self.position = pygame.math.Vector2(cell_size * self.x, self.y * 5)
+        self.position = Vector2(cell_size * self.x, self.y * 5)
         self.rect = pygame.rect.Rect(self.position.x, self.position.y, cell_size, cell_size)
 
 class Static_Image (pygame.sprite.Sprite):
