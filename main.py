@@ -27,20 +27,77 @@ class Snake(pygame.sprite.Sprite):
         }
 
         self.pythons_assets = [self.head_images['down']]
+        self.maybepythons = [{'image': 'assets\snake\head.png', 'position': Vector2(3, 3)}, {'image': 'assets\snake\head.png', 'position': Vector2(2, 3)}]
         self.rect = self.head_down.get_rect(topleft=(40, 300))
         self.is_moving = 'right'
+        
+    def spawn(self):
+        for python in self.maybepythons:
+            image = pygame.image.load(python['image']).convert_alpha()
+            x_position = int(cell_size * python['position'].y)
+            y_position = int(cell_size * python['position'].x)
+            rect = image.get_rect(topleft=(x_position, y_position))
+            screen.blit(image, rect)
     
     def move_left(self):
         self.rect.x -= 10
     
+    def new_move_left(self):
+        previous_position = None
+        next_position = None
+        for i, python in enumerate(self.maybepythons):
+            if i == 0:
+                next_position = python['position']
+                previous_position = python['position']
+                python['position'].x -= 1
+            else: 
+                next_position =  python['position']
+                python['position'] = previous_position
+    
     def move_right(self):
         self.rect.x += 10
+    
+    def new_move_right(self):
+        previous_position = None
+        next_position = None
+        for i, python in enumerate(self.maybepythons):
+            if i == 0:
+                next_position = python['position']
+                previous_position = python['position']
+                python['position'].x += 1
+            else: 
+                next_position =  python['position']
+                python['position'] = previous_position
     
     def move_up(self):
         self.rect.y -= 10
     
+    def new_move_up(self):
+        previous_position = None
+        next_position = None
+        for i, python in enumerate(self.maybepythons):
+            if i == 0:
+                next_position = python['position']
+                previous_position = python['position']
+                python['position'].y -= 1
+            else: 
+                next_position =  python['position']
+                python['position'] = previous_position
+    
     def move_down(self):
         self.rect.y += 10
+        
+    def new_move_down(self):
+        previous_position = None
+        next_position = None
+        for i, python in enumerate(self.maybepythons):
+            if i == 0:
+                next_position = python['position']
+                previous_position = python['position']
+                python['position'].y += 1
+            else: 
+                next_position =  python['position']
+                python['position'] = previous_position
 
 class Python:
     def __init__(self):
@@ -109,11 +166,11 @@ while running:
             running = False #It could be sys.exit() but this is a simpler method
                 
     keys_state = pygame.key.get_pressed()
-    
     if game_state == 'MENU':
         screen.blit(grass.image, grass.rect) 
         screen.blit(logo.image, logo.rect)
         screen.blit(button_play.image, button_play.rect)
+        snake.spawn()
         
         if (pygame.mouse.get_pressed()[0]):
             mouse_position = pygame.mouse.get_pos()
