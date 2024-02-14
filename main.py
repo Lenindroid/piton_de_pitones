@@ -27,78 +27,37 @@ class Snake(pygame.sprite.Sprite):
         }
 
         self.pythons_assets = [self.head_images['down']]
-        self.maybepythons = [{'image': 'assets\snake\head.png', 'position': Vector2(3, 3)}, {'image': 'assets\snake\head.png', 'position': Vector2(2, 3)}]
         self.rect = self.head_down.get_rect(topleft=(40, 300))
+        self.pythons = [{'image': self.head_images['down'], 'position': Vector2(3, 3)}, {'image': self.head_images['down'], 'position': Vector2(2, 3)}]
         self.is_moving = 'right'
         
     def spawn(self):
-        for python in self.maybepythons:
-            image = pygame.image.load(python['image']).convert_alpha()
+        for python in self.pythons:
             x_position = int(cell_size * python['position'].y)
             y_position = int(cell_size * python['position'].x)
-            rect = image.get_rect(topleft=(x_position, y_position))
-            screen.blit(image, rect)
+            rect = python['image'].get_rect(topleft=(x_position, y_position))
+            screen.blit(python['image'], rect)
     
     def move_left(self):
-        self.rect.x -= 10
-    
-    def new_move_left(self):
-        previous_position = None
-        next_position = None
-        for i, python in enumerate(self.maybepythons):
-            if i == 0:
-                next_position = python['position']
-                previous_position = python['position']
-                python['position'].x -= 1
-            else: 
-                next_position =  python['position']
-                python['position'] = previous_position
+        self.rect.x -= 20
     
     def move_right(self):
-        self.rect.x += 10
-    
-    def new_move_right(self):
-        previous_position = None
-        next_position = None
-        for i, python in enumerate(self.maybepythons):
-            if i == 0:
-                next_position = python['position']
-                previous_position = python['position']
-                python['position'].x += 1
-            else: 
-                next_position =  python['position']
-                python['position'] = previous_position
+        self.rect.x += 20
     
     def move_up(self):
-        self.rect.y -= 10
-    
-    def new_move_up(self):
-        previous_position = None
-        next_position = None
-        for i, python in enumerate(self.maybepythons):
-            if i == 0:
-                next_position = python['position']
-                previous_position = python['position']
-                python['position'].y -= 1
-            else: 
-                next_position =  python['position']
-                python['position'] = previous_position
+        self.rect.y -= 20
     
     def move_down(self):
-        self.rect.y += 10
+        self.rect.y += 20
         
-    def new_move_down(self):
-        previous_position = None
-        next_position = None
-        for i, python in enumerate(self.maybepythons):
-            if i == 0:
-                next_position = python['position']
-                previous_position = python['position']
-                python['position'].y += 1
-            else: 
-                next_position =  python['position']
-                python['position'] = previous_position
+    def move(self, direction='right'):
+        movement_vector = Vector2(0, 1)
+        new_head_position = self.pythons[0]['position'] + movement_vector
+        new_head = {'image': self.head_images[direction], 'position': new_head_position}
+        snake_moved = [new_head] + self.pythons[:-1]
+        self.pythons = snake_moved
 
+        
 class Python:
     def __init__(self):
         self.x = random.randint(0, cell_number_x - 1)
@@ -159,51 +118,73 @@ playing_song.file.set_volume(0.75)
 final_score = Font('assets\\typography\Snake Chan.ttf', 50)
 
 # game loop
+SCREEN_UPDATE = pygame.USEREVENT
+pygame.time.set_timer(SCREEN_UPDATE,150)
+
 menu_song.file.play()
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False #It could be sys.exit() but this is a simpler method
+        
+        if event.type == SCREEN_UPDATE:        
+            if game_state == 'MENU':
+                screen.blit(grass.image, grass.rect) 
+                screen.blit(logo.image, logo.rect)
+                screen.blit(button_play.image, button_play.rect)
+                snake.spawn()
+                snake.move()
                 
+                if (pygame.mouse.get_pressed()[0]):
+                    mouse_position = pygame.mouse.get_pos()
+                    if button_play.rect.collidepoint(mouse_position):
+                        game_state = 'PLAYING'
+                        menu_song.file.stop()
+                        playing_song.file.play(loops=-1)
+                        score = 0
+                        
+            elif game_state == 'PLAYING':
+                
+                screen.blit(grass.image, grass.rect)
+                screen.blit(snake.head_images[snake.is_moving], snake.rect)
+                python.spawn()
+                
+                if snake.rect.colliderect(python.rect):
+                    score += 1
+                    python.switch_spawn()
+                    
+                if snake.rect.x < 0 or snake.rect.y < 0 or snake.rect.x > 800 or snake.rect.y > 600:
+                    playing_song.file.stop()
+                    lost_song.file.play()
+                    game_state = 'LOST'
+                    
+                if snake.is_moving == 'left':
+                    snake.move_left()
+                if snake.is_moving == 'down':
+                    snake.move_down()
+                if snake.is_moving == 'right':
+                    snake.move_right()    
+                if snake.is_moving == 'up':
+                    snake.move_up()
+                    
+            elif game_state == 'LOST':
+                final_score_surface = final_score.render(f'Score: {score}', True, '#C1FD20')        
+                screen.blit(death_message.image, death_message.rect)
+                screen.blit(final_score_surface, (421, 488))
+                screen.blit(button_play_again.image, button_play_again.rect)
+                
+                if (pygame.mouse.get_pressed()[0]):
+                    mouse_position = pygame.mouse.get_pos()
+                    if button_play_again.rect.collidepoint(mouse_position):
+                        score = 0
+                        snake.rect = snake.head_down.get_rect(topleft=(40, 300))
+                        game_state = 'PLAYING'
+                        lost_song.file.stop()
+                        playing_song.file.play(loops=-1)
+                        
+    # User input event loop
     keys_state = pygame.key.get_pressed()
-    if game_state == 'MENU':
-        screen.blit(grass.image, grass.rect) 
-        screen.blit(logo.image, logo.rect)
-        screen.blit(button_play.image, button_play.rect)
-        snake.spawn()
-        
-        if (pygame.mouse.get_pressed()[0]):
-            mouse_position = pygame.mouse.get_pos()
-            if button_play.rect.collidepoint(mouse_position):
-                game_state = 'PLAYING'
-                menu_song.file.stop()
-                playing_song.file.play(loops=-1)
-                score = 0
-                
-    elif game_state == 'PLAYING':
-        
-        screen.blit(grass.image, grass.rect)
-        screen.blit(snake.head_images[snake.is_moving], snake.rect)
-        python.spawn()
-        
-        if snake.rect.colliderect(python.rect):
-            score += 1
-            python.switch_spawn()
-            
-        if snake.rect.x < 0 or snake.rect.y < 0 or snake.rect.x > 800 or snake.rect.y > 600:
-            playing_song.file.stop()
-            lost_song.file.play()
-            game_state = 'LOST'
-            
-        if snake.is_moving == 'left':
-            snake.move_left()
-        if snake.is_moving == 'down':
-            snake.move_down()
-        if snake.is_moving == 'right':
-            snake.move_right()    
-        if snake.is_moving == 'up':
-            snake.move_up()
-        
+    if game_state == 'PLAYING':
         if keys_state[pygame.K_UP] or keys_state[pygame.K_w]:
             snake.is_moving = 'up'
         if keys_state[pygame.K_DOWN] or keys_state[pygame.K_s]:
@@ -212,22 +193,7 @@ while running:
             snake.is_moving = 'left'
         if keys_state[pygame.K_RIGHT] or keys_state[pygame.K_d]:
             snake.is_moving = 'right'
-            
-    elif game_state == 'LOST':
-        final_score_surface = final_score.render(str(score), True, '#C1FD20')        
-        screen.blit(death_message.image, death_message.rect)
-        screen.blit(final_score_surface, (421, 488))
-        screen.blit(button_play_again.image, button_play_again.rect)
-        
-        if (pygame.mouse.get_pressed()[0]):
-            mouse_position = pygame.mouse.get_pos()
-            if button_play_again.rect.collidepoint(mouse_position):
-                score = 0
-                snake.rect = snake.head_down.get_rect(topleft=(40, 300))
-                game_state = 'PLAYING'
-                lost_song.file.stop()
-                playing_song.file.play(loops=-1)    
-            
+    
     pygame.display.flip()
     clock.tick(60)  
 
