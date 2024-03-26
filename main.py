@@ -37,7 +37,7 @@ class Snake(pygame.sprite.Sprite):
             y_position = int(cell_size * python['position'].x)
             rect = python['image'].get_rect(topleft=(x_position, y_position))
             screen.blit(python['image'], rect)
-    
+        
     def move_left(self):
         self.rect.x -= 20
     
@@ -56,7 +56,6 @@ class Snake(pygame.sprite.Sprite):
         new_head = {'image': self.head_images[direction], 'position': new_head_position}
         snake_moved = [new_head] + self.pythons[:-1]
         self.pythons = snake_moved
-
         
 class Python:
     def __init__(self):
@@ -132,8 +131,6 @@ while running:
                 screen.blit(grass.image, grass.rect) 
                 screen.blit(logo.image, logo.rect)
                 screen.blit(button_play.image, button_play.rect)
-                snake.spawn()
-                snake.move()
                 
                 if (pygame.mouse.get_pressed()[0]):
                     mouse_position = pygame.mouse.get_pos()
@@ -163,7 +160,7 @@ while running:
                 if snake.is_moving == 'down':
                     snake.move_down()
                 if snake.is_moving == 'right':
-                    snake.move_right()    
+                    snake.move()    
                 if snake.is_moving == 'up':
                     snake.move_up()
                     
