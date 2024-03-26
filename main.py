@@ -14,45 +14,37 @@ game_state = 'MENU'
 score = 0
 
 # defining classes
+class Static_Image (pygame.sprite.Sprite):
+    def __init__(self, route, alpha, **rectangle):
+        super().__init__()
+        if (alpha): 
+            self.image = pygame.image.load(route).convert_alpha()
+        else: 
+            self.image = pygame.image.load(route).convert()
+            
+        if rectangle:
+            self.rect = self.image.get_rect(**rectangle)
+        else:
+            self.rect = self.image.get_rect()
+
+pythons_assets = [Static_Image('assets\python\cat_python.png', True).image, Static_Image('assets\python\gabriela_python.png', True).image, Static_Image('assets\python\legacy_lenin.png', True).image]
+        
 class Python(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        self.head_down = pygame.image.load('assets\python\head.png').convert_alpha()
-        self.head_images = {
-        'down': self.head_down,
-        'left': pygame.transform.rotozoom(self.head_down, 270, 1),
-        'right': pygame.transform.rotozoom(self.head_down, 90, 1),
-        'up': pygame.transform.rotozoom(self.head_down, 180, 1)
-        }
-
-        self.pythons_assets = [self.head_images['down']]
-        self.rect = self.head_down.get_rect(topleft=(40, 300))
-        self.pythons = [{'image': self.head_images['down'], 'position': Vector2(3, 3)}, {'image': self.head_images['down'], 'position': Vector2(2, 3)}]
-        self.is_moving = 'right'
+        self.pythons = [{'image': Static_Image('assets\python\head.png', True).image, 'position': Vector2(3, 3)}, {'image': pythons_assets[0], 'position': Vector2(2, 3)}]
+        self.direction = Vector2(1, 0)
         
     def spawn(self):
         for python in self.pythons:
-            x_position = int(cell_size * python['position'].y)
-            y_position = int(cell_size * python['position'].x)
+            x_position = int(cell_size * python['position'].x)
+            y_position = int(cell_size * python['position'].y)
             rect = python['image'].get_rect(topleft=(x_position, y_position))
             screen.blit(python['image'], rect)
         
-    def move_left(self):
-        self.rect.x -= 20
-    
-    def move_right(self):
-        self.rect.x += 20
-    
-    def move_up(self):
-        self.rect.y -= 20
-    
-    def move_down(self):
-        self.rect.y += 20
-        
-    def move(self, direction='right'):
-        movement_vector = Vector2(0, 1)
-        new_head_position = self.pythons[0]['position'] + movement_vector
-        new_head = {'image': self.head_images[direction], 'position': new_head_position}
+    def move(self):
+        new_head = self.pythons[0]
+        new_head['position'] += self.direction
         python_moved = [new_head] + self.pythons[:-1]
         self.pythons = python_moved
         
@@ -60,9 +52,8 @@ class Pythons:
     def __init__(self):
         self.x = random.randint(0, cell_number_x - 1)
         self.y = random.randint(0, cell_number_y - 1)
-        self.position = Vector2(cell_size * self.x, self.y * 5)
+        self.position = Vector2(cell_size * self.x, self.y * cell_size)
         self.rect = pygame.rect.Rect(self.position.x, self.position.y, cell_size, cell_size)
-        self.should_spawn = True
         self.pythons_assets = ['assets\python\cat_python.png', 'assets\python\legacy_lenin.png', 'assets\python\gabriela_python.png']
         
     def spawn(self):
@@ -73,18 +64,9 @@ class Pythons:
         random.shuffle(self.pythons_assets)
         self.x = random.randint(0, cell_number_x - 1)
         self.y = random.randint(0, cell_number_y - 1)
-        self.position = Vector2(cell_size * self.x, self.y * 5)
+        self.position = Vector2(cell_size * self.x, self.y * cell_size)
         self.rect = pygame.rect.Rect(self.position.x, self.position.y, cell_size, cell_size)
 
-class Static_Image (pygame.sprite.Sprite):
-    def __init__(self, route, alpha, **rectangle):
-        super().__init__()
-        if (alpha): 
-            self.image = pygame.image.load(route).convert_alpha()
-        else: 
-            self.image = pygame.image.load(route).convert()
-            
-        self.rect = self.image.get_rect(**rectangle)
         
 class Font(pygame.sprite.Sprite):
     def __init__(self, font, size):
@@ -137,31 +119,22 @@ while running:
                         game_state = 'PLAYING'
                         menu_song.file.stop()
                         playing_song.file.play(loops=-1)
-                        score = 0
+                        score = 0                
                         
             elif game_state == 'PLAYING':
-                
                 screen.blit(grass.image, grass.rect)
-                screen.blit(python.head_images[python.is_moving], python.rect)
+                python.spawn()
                 pythons.spawn()
+                python.move()
                 
-                if python.rect.colliderect(pythons.rect):
-                    score += 1
-                    pythons.switch_spawn()
+                # if python.rect.colliderect(pythons.rect):
+                #     score += 1
+                #     pythons.switch_spawn()
                     
-                if python.rect.x < 0 or python.rect.y < 0 or python.rect.x > 800 or python.rect.y > 600:
-                    playing_song.file.stop()
-                    lost_song.file.play()
-                    game_state = 'LOST'
-                    
-                if python.is_moving == 'left':
-                    python.move_left()
-                if python.is_moving == 'down':
-                    python.move_down()
-                if python.is_moving == 'right':
-                    python.move()    
-                if python.is_moving == 'up':
-                    python.move_up()
+                # if python.rect.x < 0 or python.rect.y < 0 or python.rect.x > 800 or python.rect.y > 600:
+                #     playing_song.file.stop()
+                #     lost_song.file.play()
+                #     game_state = 'LOST'
                     
             elif game_state == 'LOST':
                 final_score_surface = final_score.render(f'Score: {score}', True, '#C1FD20')        
@@ -182,13 +155,13 @@ while running:
     keys_state = pygame.key.get_pressed()
     if game_state == 'PLAYING':
         if keys_state[pygame.K_UP] or keys_state[pygame.K_w]:
-            python.is_moving = 'up'
+            python.direction = Vector2(0, -1)
         if keys_state[pygame.K_DOWN] or keys_state[pygame.K_s]:
-            python.is_moving = 'down'
+            python.direction = Vector2(0, 1)
         if keys_state[pygame.K_LEFT] or keys_state[pygame.K_a]:
-            python.is_moving = 'left'
+           python.direction = Vector2(-1, 0)
         if keys_state[pygame.K_RIGHT] or keys_state[pygame.K_d]:
-            python.is_moving = 'right'
+           python.direction = Vector2(1, 0)
     
     pygame.display.flip()
     clock.tick(60)  
