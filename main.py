@@ -27,12 +27,16 @@ class Static_Image (pygame.sprite.Sprite):
         else:
             self.rect = self.image.get_rect()
 
-pythons_assets = [Static_Image('assets\python\cat_python.png', True).image, Static_Image('assets\python\gabriela_python.png', True).image, Static_Image('assets\python\legacy_lenin.png', True).image]
+pythons_assets = [
+    Static_Image('assets\python\cat_python.png', True), 
+    Static_Image('assets\python\gabriela_python.png', True), 
+    Static_Image('assets\python\legacy_lenin.png', True)
+]
         
 class Python(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        self.pythons = [{'image': Static_Image('assets\python\head.png', True).image, 'position': Vector2(3, 3)}, {'image': pythons_assets[0], 'position': Vector2(2, 3)}]
+        self.pythons = [{'image': Static_Image('assets\python\head.png', True).image, 'position': Vector2(3, 3)}, {'image': pythons_assets[0].image, 'position': Vector2(2, 3)}]
         self.direction = Vector2(1, 0)
         
     def spawn(self):
@@ -43,10 +47,11 @@ class Python(pygame.sprite.Sprite):
             screen.blit(python['image'], rect)
         
     def move(self):
-        new_head = self.pythons[0]
-        new_head['position'] += self.direction
-        python_moved = [new_head] + self.pythons[:-1]
-        self.pythons = python_moved
+        new_head = {'image': self.pythons[0]['image'], 'position': self.pythons[0]['position'] + self.direction}
+        new_body = [{'image': segment['image'], 'position': self.pythons[i-1]['position']} for i, segment in enumerate(self.pythons[1:], start=1)]
+        
+        self.pythons = [new_head] + new_body
+
         
 class Pythons:
     def __init__(self):
