@@ -1,5 +1,4 @@
-import pygame
-import random
+import pygame, random
 from pygame.math import Vector2
 
 # pygame setup
@@ -8,60 +7,11 @@ cell_size = 40
 cell_number_x = 20
 cell_number_y = 15
 screen = pygame.display.set_mode((cell_size * cell_number_x, cell_size * cell_number_y))
-pygame.display.set_caption('Pitón de pitones (Alpha 1.0.9)')
+pygame.display.set_caption('Pitón de pitones (Alpha 1.1.3)')
 clock = pygame.time.Clock()
 running = True
-game_state = 'MENU'
-score = 0
 
 # defining classes
-class Snake(pygame.sprite.Sprite):
-    def __init__(self):
-        super().__init__()
-        self.head_down = pygame.image.load('assets\snake\head.png').convert_alpha()
-        self.head_images = {
-        'down': self.head_down,
-        'left': pygame.transform.rotozoom(self.head_down, 270, 1),
-        'right': pygame.transform.rotozoom(self.head_down, 90, 1),
-        'up': pygame.transform.rotozoom(self.head_down, 180, 1)
-        }
-
-        self.pythons_assets = [self.head_images['down']]
-        self.rect = self.head_down.get_rect(topleft=(40, 300))
-        self.is_moving = 'right'
-    
-    def move_left(self):
-        self.rect.x -= 10
-    
-    def move_right(self):
-        self.rect.x += 10
-    
-    def move_up(self):
-        self.rect.y -= 10
-    
-    def move_down(self):
-        self.rect.y += 10
-
-class Python:
-    def __init__(self):
-        self.x = random.randint(0, cell_number_x - 1)
-        self.y = random.randint(0, cell_number_y - 1)
-        self.position = Vector2(cell_size * self.x, self.y * 5)
-        self.rect = pygame.rect.Rect(self.position.x, self.position.y, cell_size, cell_size)
-        self.should_spawn = True
-        self.pythons_assets = ['assets\snake\cat_python.png', 'assets\snake\legacy_lenin.png', 'assets\snake\gabriela_python.png']
-        
-    def spawn(self):
-        image = pygame.image.load(self.pythons_assets[0]).convert()
-        screen.blit(image, self.position)
-    
-    def switch_spawn(self):
-        random.shuffle(self.pythons_assets)
-        self.x = random.randint(0, cell_number_x - 1)
-        self.y = random.randint(0, cell_number_y - 1)
-        self.position = Vector2(cell_size * self.x, self.y * 5)
-        self.rect = pygame.rect.Rect(self.position.x, self.position.y, cell_size, cell_size)
-
 class Static_Image (pygame.sprite.Sprite):
     def __init__(self, route, alpha, **rectangle):
         super().__init__()
@@ -70,8 +20,57 @@ class Static_Image (pygame.sprite.Sprite):
         else: 
             self.image = pygame.image.load(route).convert()
             
-        self.rect = self.image.get_rect(**rectangle)
+        if rectangle:
+            self.rect = self.image.get_rect(**rectangle)
+        else:
+            self.rect = self.image.get_rect()
+
+pythons_assets = [
+    Static_Image('assets\python\cat_python.png', True), 
+    Static_Image('assets\python\gabriela_python.png', True), 
+    Static_Image('assets\python\legacy_lenin.png', True)
+]
         
+class Python(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.pythons = [{'image': Static_Image('assets\python\head.png', True).image, 'position': Vector2(3, 3)}, {'image': pythons_assets[0].image, 'position': Vector2(2, 3)}]
+        self.direction = Vector2(1, 0)
+        
+    def spawn(self):
+        for python in self.pythons:
+            x_position = int(cell_size * python['position'].x)
+            y_position = int(cell_size * python['position'].y)
+            rect = python['image'].get_rect(topleft=(x_position, y_position))
+            screen.blit(python['image'], rect)
+        
+    def move(self):
+        new_head = {'image': self.pythons[0]['image'], 'position': self.pythons[0]['position'] + self.direction}
+        self.last_position = self.pythons[-1]['position']
+        new_body = [{'image': segment['image'], 'position': self.pythons[i-1]['position']} for i, segment in enumerate(self.pythons[1:], start=1)]
+        self.pythons = [new_head] + new_body
+        
+    def push_python(self, image, position):
+        self.pythons.append({'image': image, 'position': position})
+
+        
+class Pythons:
+    def __init__(self): 
+        self.position = Vector2(random.randint(0, cell_number_x - 1), random.randint(0, cell_number_y - 1))
+        x_position = int(cell_size * self.position.x)
+        y_position = int(cell_size * self.position.y)
+        self.rect = pygame.rect.Rect(x_position, y_position, cell_size, cell_size)
+        self.pythons_assets = ['assets\python\cat_python.png', 'assets\python\legacy_lenin.png', 'assets\python\gabriela_python.png']
+        
+    def spawn(self):
+        self.image = pygame.image.load(self.pythons_assets[0]).convert()
+        screen.blit(self.image, self.rect)
+    
+    def switch_spawn(self):
+        random.shuffle(self.pythons_assets)
+        self.position = Vector2(random.randint(0, cell_number_x - 1), random.randint(0, cell_number_y - 1))
+        self.rect = pygame.rect.Rect(self.position.x * cell_size, self.position.y * cell_size, cell_size, cell_size)
+   
 class Font(pygame.sprite.Sprite):
     def __init__(self, font, size):
         super().__init__()
@@ -86,91 +85,105 @@ class Music(pygame.sprite.Sprite):
     def __init__(self, file):
         super().__init__()
         self.file = pygame.mixer.Sound(file)
+        
+class GUI():
+    def __init__(self):
+        self.grass = Static_Image('assets\grass.png', False, topleft = (0, 0))
+        self.pythons = Pythons()
+        self.logo = Static_Image('assets\logo.png', True, center = (400, 150))
+        self.button_play = Static_Image('assets\play_button.png', True, topleft = (200, 186))
+        self.button_play_again = Static_Image('assets\play_again.png', True, topleft = (52, 488))
+        self.death_message = Static_Image('assets\DEATH_MESSAGE.png', True, topleft = (0, 0))
+        self.lost_song = Music('assets\music\lost_song.mp3')
+        self.menu_song = Music('assets\music\menu_song.mp3')
+        self.playing_song = Music('assets/music/playing_song_loop.mp3')
+        self.playing_song.file.set_volume(0.75)
+        self.final_score = Font('assets\\typography\Snake Chan.ttf', 50)
+    
+class Game():
+    def __init__(self):
+        self.python = Python()
+        self.pythons = Pythons()
+        self.score = 0
+        self.state = 'MENU'
+        
+    def play(self):
+        screen.blit(GUI.grass.image, GUI.grass.rect)
+        self.python.spawn()
+        self.pythons.spawn()
+        self.python.move()
+        
+    def check_collision(self):
+        if self.pythons.position == self.python.pythons[0]['position']:
+            self.python.push_python(self.pythons.image, self.python.last_position)
+            self.score += 1
+            self.pythons.switch_spawn()
+            
+        if self.python.pythons[0]['position'].x < 0 or self.python.pythons[0]['position'].y < 0 or self.python.pythons[0]['position'].x > cell_number_x or self.python.pythons[0]['position'].y > cell_number_y or self.python.pythons[0]['position'] == self.python.pythons[-1]['position']:
+            GUI.playing_song.file.stop()
+            GUI.lost_song.file.play()
+            self.state = 'LOST'
+            
 
-# loading assets
-grass = Static_Image('assets\grass.png', False, topleft = (0, 0))
-logo = Static_Image('assets\logo.png', True, center = (400, 150))
-button_play = Static_Image('assets\play_button.png', True, topleft = (200, 186))
-button_play_again = Static_Image('assets\play_again.png', True, topleft = (52, 488))
-snake = Snake()
-python = Python()
-death_message = Static_Image('assets\DEATH_MESSAGE.png', True, topleft = (0, 0))
-lost_song = Music('assets\music\lost_song.mp3')
-menu_song = Music('assets\music\menu_song.mp3')
-playing_song = Music('assets/music/playing_song_loop.mp3')
-playing_song.file.set_volume(0.75)
-final_score = Font('assets\\typography\Snake Chan.ttf', 50)
+Game = Game()
+GUI = GUI()
+
 
 # game loop
-menu_song.file.play()
+SCREEN_UPDATE = pygame.USEREVENT
+pygame.time.set_timer(SCREEN_UPDATE, 130)
+
+GUI.menu_song.file.play()
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False #It could be sys.exit() but this is a simpler method
+        
+        if event.type == SCREEN_UPDATE:        
+            if Game.state == 'MENU':
+                screen.blit(GUI.grass.image, GUI.grass.rect) 
+                screen.blit(GUI.logo.image, GUI.logo.rect)
+                screen.blit(GUI.button_play.image, GUI.button_play.rect)
                 
+                if (pygame.mouse.get_pressed()[0]):
+                    mouse_position = pygame.mouse.get_pos()
+                    if GUI.button_play.rect.collidepoint(mouse_position):
+                        Game.state = 'PLAYING'
+                        GUI.menu_song.file.stop()
+                        GUI.playing_song.file.play(loops=-1)
+                        Game.score = 0 #Pls, check if this is necesary              
+                        
+            elif Game.state == 'PLAYING':
+                Game.play()
+                Game.check_collision()
+                    
+            elif Game.state == 'LOST':
+                final_score_surface = GUI.final_score.render(f'Score: {Game.score}', True, '#C1FD20')        
+                screen.blit(GUI.death_message.image, GUI.death_message.rect)
+                screen.blit(final_score_surface, (421, 488))
+                screen.blit(GUI.button_play_again.image, GUI.button_play_again.rect)
+                
+                if (pygame.mouse.get_pressed()[0]):
+                    mouse_position = pygame.mouse.get_pos()
+                    if GUI.button_play_again.rect.collidepoint(mouse_position):
+                        Game.score = 0
+                        #death face. It doesn't work anymore with the update.
+                        Game.state = 'PLAYING'
+                        GUI.lost_song.file.stop()
+                        GUI.playing_song.file.play(loops=-1)
+                        
+    # User input event loop
     keys_state = pygame.key.get_pressed()
-    
-    if game_state == 'MENU':
-        screen.blit(grass.image, grass.rect) 
-        screen.blit(logo.image, logo.rect)
-        screen.blit(button_play.image, button_play.rect)
-        
-        if (pygame.mouse.get_pressed()[0]):
-            mouse_position = pygame.mouse.get_pos()
-            if button_play.rect.collidepoint(mouse_position):
-                game_state = 'PLAYING'
-                menu_song.file.stop()
-                playing_song.file.play(loops=-1)
-                score = 0
-                
-    elif game_state == 'PLAYING':
-        
-        screen.blit(grass.image, grass.rect)
-        screen.blit(snake.head_images[snake.is_moving], snake.rect)
-        python.spawn()
-        
-        if snake.rect.colliderect(python.rect):
-            score += 1
-            python.switch_spawn()
-            
-        if snake.rect.x < 0 or snake.rect.y < 0 or snake.rect.x > 800 or snake.rect.y > 600:
-            playing_song.file.stop()
-            lost_song.file.play()
-            game_state = 'LOST'
-            
-        if snake.is_moving == 'left':
-            snake.move_left()
-        if snake.is_moving == 'down':
-            snake.move_down()
-        if snake.is_moving == 'right':
-            snake.move_right()    
-        if snake.is_moving == 'up':
-            snake.move_up()
-        
+    if Game.state == 'PLAYING':
         if keys_state[pygame.K_UP] or keys_state[pygame.K_w]:
-            snake.is_moving = 'up'
+            Game.python.direction = Vector2(0, -1)
         if keys_state[pygame.K_DOWN] or keys_state[pygame.K_s]:
-            snake.is_moving = 'down'
+            Game.python.direction = Vector2(0, 1)
         if keys_state[pygame.K_LEFT] or keys_state[pygame.K_a]:
-            snake.is_moving = 'left'
+           Game.python.direction = Vector2(-1, 0)
         if keys_state[pygame.K_RIGHT] or keys_state[pygame.K_d]:
-            snake.is_moving = 'right'
-            
-    elif game_state == 'LOST':
-        final_score_surface = final_score.render(str(score), True, '#C1FD20')        
-        screen.blit(death_message.image, death_message.rect)
-        screen.blit(final_score_surface, (421, 488))
-        screen.blit(button_play_again.image, button_play_again.rect)
-        
-        if (pygame.mouse.get_pressed()[0]):
-            mouse_position = pygame.mouse.get_pos()
-            if button_play_again.rect.collidepoint(mouse_position):
-                score = 0
-                snake.rect = snake.head_down.get_rect(topleft=(40, 300))
-                game_state = 'PLAYING'
-                lost_song.file.stop()
-                playing_song.file.play(loops=-1)    
-            
+           Game.python.direction = Vector2(1, 0)
+    
     pygame.display.flip()
     clock.tick(60)  
 
