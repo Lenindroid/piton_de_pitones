@@ -46,12 +46,12 @@ class Python(pygame.sprite.Sprite):
         
     def move(self):
         new_head = {'image': self.pythons[0]['image'], 'position': self.pythons[0]['position'] + self.direction}
+        self.last_position = self.pythons[-1]['position']
         new_body = [{'image': segment['image'], 'position': self.pythons[i-1]['position']} for i, segment in enumerate(self.pythons[1:], start=1)]
         self.pythons = [new_head] + new_body
         
-    def push_python(self, position):
-        chosen_asset = random.shuffle(pythons_assets)
-        self.pythons.append({'image': chosen_asset.image, 'position': position})
+    def push_python(self, image, position):
+        self.pythons.append({'image': image, 'position': position})
 
         
 class Pythons:
@@ -63,8 +63,8 @@ class Pythons:
         self.pythons_assets = ['assets\python\cat_python.png', 'assets\python\legacy_lenin.png', 'assets\python\gabriela_python.png']
         
     def spawn(self):
-        image = pygame.image.load(self.pythons_assets[0]).convert()
-        screen.blit(image, self.rect)
+        self.image = pygame.image.load(self.pythons_assets[0]).convert()
+        screen.blit(self.image, self.rect)
     
     def switch_spawn(self):
         random.shuffle(self.pythons_assets)
@@ -115,11 +115,11 @@ class Game():
         
     def check_collision(self):
         if self.pythons.position == self.python.pythons[0]['position']:
-            #self.python.push_python()
+            self.python.push_python(self.pythons.image, self.python.last_position)
             self.score += 1
             self.pythons.switch_spawn()
             
-        if self.python.pythons[0]['position'].x < 0 or self.python.pythons[0]['position'].y < 0 or self.python.pythons[0]['position'].x > cell_number_x or self.python.pythons[0]['position'].y > cell_number_y:
+        if self.python.pythons[0]['position'].x < 0 or self.python.pythons[0]['position'].y < 0 or self.python.pythons[0]['position'].x > cell_number_x or self.python.pythons[0]['position'].y > cell_number_y or self.python.pythons[0]['position'] == self.python.pythons[-1]['position']:
             GUI.playing_song.file.stop()
             GUI.lost_song.file.play()
             self.state = 'LOST'
