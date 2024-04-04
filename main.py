@@ -167,7 +167,8 @@ while running:
                     mouse_position = pygame.mouse.get_pos()
                     if GUI.button_play_again.rect.collidepoint(mouse_position):
                         Game.score = 0
-                        #death face. It doesn't work anymore with the update.
+                        Game.python.pythons = [{'image': Static_Image('assets\python\head.png', True).image, 'position': Vector2(3, 3)}, {'image': pythons_assets[0].image, 'position': Vector2(2, 3)}]
+                        Game.python.direction = Vector2(1, 0)
                         Game.state = 'PLAYING'
                         GUI.lost_song.file.stop()
                         GUI.playing_song.file.play(loops=-1)
