@@ -1,7 +1,7 @@
 # **Pitón de pitones** (Beta 1.2.0)
 
 ## ¿Qué es pitón de pitones?
-Repositorio fue creado con la intención de que Lenin (desarrollador del juego) aprendiera los conceptos básicos de Python mediante la práctica. Consiste en un videojuego de la serpiente creado con pygame con la peculiaridad de que la serpiente está formada por personas que la serpiente va comiendo. 
+Es un repositorio fue creado con la intención de que Lenin (desarrollador del juego) aprendiera los conceptos básicos de Python mediante la práctica. Consiste en un videojuego de la serpiente creado con pygame con la peculiaridad de que la serpiente está formada por personas que la serpiente va comiendo. 
 
 ## Instalación 
 1. **Instrucciones de instalación:**
