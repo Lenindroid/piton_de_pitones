@@ -1,7 +1,7 @@
 # **Python of Pythons** (Beta 1.2.0)
 
 ## What is Python of Pythons?
-The repository was created with the intention for Lenin (the game developer) to learn the basic concepts of Python through practice. It consists of a snake video game created with Pygame, with the peculiarity that the snake is formed by people that the snake eats.
+It's repository that was created with the intention for Lenin (the game developer) to learn the basic concepts of Python through practice. It consists of a snake video game created with Pygame, with the peculiarity that the snake is formed by people that the snake eats.
 
 ## Installation
 1. **Installation instructions:**
