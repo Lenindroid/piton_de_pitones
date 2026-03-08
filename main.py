@@ -28,7 +28,9 @@ class Static_Image (pygame.sprite.Sprite):
 pythons_assets = [
     Static_Image('assets\python\cat_python.png', True), 
     Static_Image('assets\python\gabriela_python.png', True), 
-    Static_Image('assets\python\legacy_lenin.png', True)
+    Static_Image('assets\python\legacy_lenin.png', True),
+    Static_Image('assets\python\fabian.jpeg', True),
+    Static_Image('assets\python\ingrid.jpeg', True)
 ]
         
 class Python(pygame.sprite.Sprite):
@@ -60,7 +62,7 @@ class Pythons:
         x_position = int(cell_size * self.position.x)
         y_position = int(cell_size * self.position.y)
         self.rect = pygame.rect.Rect(x_position, y_position, cell_size, cell_size)
-        self.pythons_assets = ['assets\python\cat_python.png', 'assets\python\legacy_lenin.png', 'assets\python\gabriela_python.png']
+        self.pythons_assets = ['assets\python\cat_python.png', 'assets\python\legacy_lenin.png', 'assets\python\gabriela_python.png', 'assets\python\fabian.jpeg', 'assets\python\ingrid.jpeg'*589]
         
     def spawn(self):
         self.image = pygame.image.load(self.pythons_assets[0]).convert()
